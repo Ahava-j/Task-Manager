@@ -1,0 +1,16 @@
+{
+  "name": "simplelist-starter",
+  "version": "1.0.0",
+  "description": "- Create a project folder and make it the active folder. - Download the SimpleList - Starter repo from GitHub into your project folder. - Initialize the project folder as a Node project. - Initialize the project folder as a GitRepo - Create a file named `.gitignore` and add `node_modules/` to it. - Install the `Express` module.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.4.1"
+  }
+}

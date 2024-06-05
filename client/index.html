@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="csc3221.css">
+  <title>Simple List</title>
+</head>
+<body>
+  <div class="page-area">
+    <h1>To Do List</h1>
+    <form>
+      <div style="display: flex;">
+        <section>
+          <p>Item Name</p>
+          <input type="text"
+          name="listitem"
+          id="listitem"
+          autocomplete="false"
+          />
+        </section>
+        <section style="margin-left: 10px;">
+          <p>Change Name</p>
+          <input type="text"
+          name="changename"
+          id="changename"
+          autocomplete="false"
+          />
+        </section>
+      </div>
+      <button type="submit" class="add-btn">Add</button>
+      <button type="submit" class="del-btn">Delete</button>
+      <button type="submit" class="change-btn">Change</button>
+    </form>
+    <h3>On my list</h3>
+    <div class="result"></div>
+  </div>
+  <script src="corehttp.js"></script>
+  <script src="scripts.js"></script>
+</body>
+</html>
