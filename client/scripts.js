@@ -15,16 +15,24 @@ const changeButton =  document.querySelector(".change-btn");
 // Listeners 
 addButton.addEventListener("click", httpPost);
 delButton.addEventListener("click", httpDelete);
-//changeButton.addEventListener("click", httpChange);
+changeButton.addEventListener("click", httpChange);
 
 /* Helper Functions */
 function ShowList() {
   let output = "<ul>";
   for (const itm of taskList) {
-    output += `<li>${itm.name} - ${itm.completed}</li>`;
+    output += `<li><input type="checkbox" id='${itm._id}' onclick="checkToggle('${itm._id}')">${itm.name}</li>`;
   }
   output += "</ul>";
   result.innerHTML = output;
+
+  //set checked attributes
+  for (const itm of taskList) {
+    let checkBox = document.getElementById(itm._id);
+    if (itm.completed) {
+      checkBox.checked = true;
+    }
+  }
 }
 
 async function GetList() {
@@ -40,18 +48,27 @@ async function GetList() {
   }
 }
 
-/*async function WriteTasks(requestData) { 
-  try {
-    let response = await http.post('/tm/tasks/', requestData);
-    await GetList();
+ async function checkToggle(taskId) {
+  let checkBox = document.getElementById(taskId);
+  console.log("check " + taskId + " " + checkBox.checked);
+  try { 
+    const index = taskList.findIndex(object => {
+      return object._id == taskId;
+    });
+    // change completed value
+    let requestData = {
+      id: taskId,
+      name: taskList[index].name, //don't change name
+      completed: checkBox.checked
+    };
+    // update check
+    let response = await http.put('/tm/tasks/', requestData);
     console.log(response);
-    return;
-  }
-  catch(error) {
+  } catch(error) {
     console.log(error);
     return;
   }
-}*/
+}
 
 // post new task
 async function httpPost(e) {
@@ -82,7 +99,6 @@ async function httpDelete(e) {
   e.preventDefault();
 
   try {
-    
     const index = taskList.findIndex(object => {
       return object.name == input.value;
     });
@@ -99,7 +115,38 @@ async function httpDelete(e) {
     } else {
       alert(`${input.value} Not found in array`);
     }
+  } catch(error) {
+    console.log(error);
+    return;
+  }
+}
 
+async function httpChange(e) {
+  // takes the value in the list and changes it
+  // update the server 
+  e.preventDefault();
+
+  try {
+    const index = taskList.findIndex(object => {
+      return object.name == input.value;
+    });
+    if (index == -1) {
+      alert(`${input.value} Not found in array`);
+    } else if (!changeValue.value) {
+      alert(`Change Name field is empty`);
+    } else {
+      // get id of inputted object
+      let requestData = {
+        id: taskList[index]._id,
+        name: changeValue.value,
+        completed: taskList[index].completed // don't change completed value
+      };
+      // change task
+      let response = await http.put('/tm/tasks/', requestData);
+      console.log(response);
+      // refresh list
+      await GetList();
+    }
   } catch(error) {
     console.log(error);
     return;

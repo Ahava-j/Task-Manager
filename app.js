@@ -13,7 +13,7 @@ app.use(express.json());
 const tasks = require("./Task");
 
 // Define routes
-app.get("/tm/tasks/", async (req,res)=>{
+app.get("/tm/tasks/", async (req,res) => {
   try {
     //console.log(req.params);
     //const {pid} = req.params;
@@ -25,7 +25,7 @@ app.get("/tm/tasks/", async (req,res)=>{
   };
 });
 
-app.post("/tm/tasks/", async (req,res)=>{
+app.post("/tm/tasks/", async (req,res) => {
   try {
     const task = await tasks.create({name: req.body.name, completed: req.body.completed});
     res.status(200).json({task});
@@ -34,10 +34,21 @@ app.post("/tm/tasks/", async (req,res)=>{
   };
 });
 
-app.delete("/tm/tasks/", async (req,res)=>{
+app.delete("/tm/tasks/", async (req,res) => {
   try {
     const task = await tasks.findByIdAndDelete(req.body.id);
     res.status(200).json({task});
+  } catch {
+    res.status(500).json({msg: error});
+  };
+});
+
+app.put("/tm/tasks/", async (req,res) => {
+  try {
+    if (req.body.name) {
+      const task = await tasks.findByIdAndUpdate(req.body.id, {name: req.body.name, completed: req.body.completed});
+      res.status(200).json({task});
+    }
   } catch {
     res.status(500).json({msg: error});
   };
