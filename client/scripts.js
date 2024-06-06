@@ -2,7 +2,7 @@
 const http = new coreHTTP;
 
 // Block Variables
-let theList = [];
+let taskList = [];
 
 // setup selectors
 const result = document.querySelector(".result");
@@ -15,13 +15,13 @@ const changeButton =  document.querySelector(".change-btn");
 // Listeners 
 addButton.addEventListener("click", httpPost);
 delButton.addEventListener("click", httpDelete);
-changeButton.addEventListener("click", httpChange);
+//changeButton.addEventListener("click", httpChange);
 
 /* Helper Functions */
 function ShowList() {
   let output = "<ul>";
-  for (const itm of theList) {
-    output += `<li>${itm}</li>`;
+  for (const itm of taskList) {
+    output += `<li>${itm.name} - ${itm.completed}</li>`;
   }
   output += "</ul>";
   result.innerHTML = output;
@@ -29,29 +29,20 @@ function ShowList() {
 
 async function GetList() {
   try {
-    const reqR = await http.get('/api');
-    theList = reqR;
+    const reqR = await http.get('/tm/tasks/');
+    taskList = reqR.task;
+    console.log(taskList);
     ShowList();
-    // if (reqR.ok) {
-    //   theList = await reqR.json();
-    //   ShowList();
-    // } 
-    // else {
-    //   console.error('Error:', reqR.status, reqR.statusText);
-    //   result.innerHTML = 'Error loading list. Please try again later.';
-    // }
+
   } catch (error) {
     console.error('Network error:', error);
     result.innerHTML = 'Network error. Please check your connection and try again.';
   }
 }
 
-async function WriteList() {
-  // sending a list to the server 
-  // sending the list as data 
-  //ust http object to send server using post 
+/*async function WriteTasks(requestData) { 
   try {
-    let response = await http.post('/api', theList);
+    let response = await http.post('/tm/tasks/', requestData);
     await GetList();
     console.log(response);
     return;
@@ -60,56 +51,59 @@ async function WriteList() {
     console.log(error);
     return;
   }
-}
+}*/
 
-/* Listener Functions */
-async function httpPost(e) { // e is an  event object 
-  e.preventDefault();
-  if (input.value) {
-    // const addEle = input.value; // gets value of input thingy
-    theList.push(input.value); // adds ti the back of list
-    console.log(JSON.stringify(theList));
-    await WriteList(); // calls write list and waits for it to compelte before calling showlist
-    // ShowList(); //updates the displayed list to match thelist
-  } else {
-    alert(`Item Name field is empty`);
-  }
-  
-  return true; 
-}
-
-function httpDelete(e) {
-  // takes the value and removes it from the list 
-  // update the server 
+// post new task
+async function httpPost(e) {
   e.preventDefault();
 
-  const index = theList.indexOf(input.value);
-  if (index !== -1) {
-    theList.splice(index, 1);
-    WriteList();
-  } else {
-    alert(`${input.value} Not found in array`);
-  }
-  return;
-  
+  try {
+    if (input.value) {
+      // add request params and create new task
+      let requestData = {
+        name: input.value,
+        completed: false
+      };
+      let response = await http.post('/tm/tasks/', requestData);
+      console.log(response);
+      // refresh list
+      await GetList();
+    } else {
+      alert(`Item Name field is empty`);
+    }
+  } catch(error) {
+    console.log(error);
+    return;
+  } 
 }
 
-function httpChange(e) {
-  // takes the value in the list and changes it
-  // update the server 
+// delete task
+async function httpDelete(e) {
   e.preventDefault();
 
-  const index = theList.indexOf(input.value);
-  if (index == -1) {
-    alert(`${input.value} Not found in array`);
-  } else if (!changeValue.value) {
-    alert(`Change Name field is empty`);
-  } else {
-    theList[index] = changeValue.value;
-    WriteList();
+  try {
+    
+    const index = taskList.findIndex(object => {
+      return object.name == input.value;
+    });
+    if (index !== -1) {
+      // get id of inputted object
+      let requestData = {
+        id: taskList[index]._id
+      };
+      // delete task
+      let response = await http.delete('/tm/tasks/', requestData);
+      console.log(response);
+      // refresh list
+      await GetList();
+    } else {
+      alert(`${input.value} Not found in array`);
+    }
+
+  } catch(error) {
+    console.log(error);
+    return;
   }
-  return;
-  
 }
 
 // Loading functions
@@ -120,12 +114,14 @@ function showLoading() {
 async function main() {
   addButton.disabled = true;
   delButton.disabled = true;
+  changeButton.disabled = true;
   showLoading();
 
   await GetList();
 
   addButton.disabled = false;
   delButton.disabled = false;
+  changeButton.disabled = false;
 }
 
 main();

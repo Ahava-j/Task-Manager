@@ -1,56 +1,54 @@
-// Get 3rd Party modules
 const express = require("express");
+const connectDB = require("./connect");
 
-// Get Custom built modules 
-//this is just importing it which can than be used to access read and write
-const fm = require("./filemgr");
-
-
-// Create the express http server
+const port = 8080;
+const appName = "Task Manager";
 const app = express();
 
-// Define some built-in middleware
-app.use(express.static("./Client")); 
-//.use lets you use middleware functions which have access to the request and responce obj
-// express.static makes it so that the server sends files as is to the client - they dont need to be processed by server b4 sent
+// Middleware
+app.use(express.static("./client")); 
 app.use(express.json());
 
-// Define HTTP  routes listenting for requests
-// get defines handler for GET requests which retrive data from a server
-///api is the path that the hadnler will respond to
-app.get("/api", async (req,res) => {
-  try{
-    const userReq = await fm.ReadData();
-    // console.log(userReq);
-    res.status(200).json(userReq);
-  }
-  catch(error){
-    res.status(500).json({ error: 'An error occurred reading data' });
-  }
-})
+// Data model (schema)
+const tasks = require("./Task");
 
-app.post("/api", async (req,res) => {
-  console.log(req.body);
-  // try{
-    let valid = await fm.WriteData(req.body);
-    if(valid === true){
-      res.status(200).json("Data written successfully");
-      return;
-    } 
-  // }
-  // catch (error){
-    res.status(500).json({ error: 'An error occurred while writing data' });
-  // }
-})
+// Define routes
+app.get("/tm/tasks/", async (req,res)=>{
+  try {
+    //console.log(req.params);
+    //const {pid} = req.params;
 
-// page not found route
-app.all("*", (req,res) => {
-  res.status(404).send("<h1>Page Not Found...</h1>");
+    const task = await tasks.find(); //findbyid //create //findbyidanddelete //findbyidandupdate
+    res.status(200).json({task});
+  } catch {
+    res.status(500).json({msg: error});
+  };
 });
 
-// Create a server
-const appName = "Simple List";
-const port = 5050;
-app.listen(port, () => {
-  console.log(`App ${appName} is running on port ${port}`);
-})
+app.post("/tm/tasks/", async (req,res)=>{
+  try {
+    const task = await tasks.create({name: req.body.name, completed: req.body.completed});
+    res.status(200).json({task});
+  } catch {
+    res.status(500).json({msg: error});
+  };
+});
+
+app.delete("/tm/tasks/", async (req,res)=>{
+  try {
+    const task = await tasks.findByIdAndDelete(req.body.id);
+    res.status(200).json({task});
+  } catch {
+    res.status(500).json({msg: error});
+  };
+});
+
+// Connect to the database and start the node server
+(async function () {
+  try {
+    await connectDB();
+    app.listen(port, () => console.log(`${appName} is listening on port ${port}.`));
+  } catch (error) {
+    console.log(error);
+  };
+}) ();

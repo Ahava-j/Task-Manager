@@ -177,7 +177,7 @@ label > .label-body {
   margin-left: .5rem;
   font-weight: normal;
 }
-ul {list-style: circle inside; }
+ul {list-style: none; }
 ol {list-style: decimal inside; }
 ol, ul {
   padding-left: 0;
@@ -190,7 +190,12 @@ ol ul {
   margin: 1.5rem 0 1.5rem 3rem;
   font-size: 90%;
 }
-li {margin-bottom: 1rem;}
+li {
+  margin-bottom: 1rem;
+  padding: 3px;
+  border: 1px solid lightgray;
+  border-radius: 0.4rem;
+}
 th,
 td {
   padding: 1.2rem 1.5rem;
